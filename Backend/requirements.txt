@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+requests
+
+# AI / Machine Learning
+torch
+transformers
+sentence-transformers
+numpy
+scikit-learn
+
+# Optional (for RAG / vector search)
+faiss-cpu

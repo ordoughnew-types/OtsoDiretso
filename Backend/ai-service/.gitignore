@@ -1,0 +1,7 @@
+# Python AI service
+venv/
+__pycache__/
+*.pyc
+*.pkl
+*.pt
+.env
