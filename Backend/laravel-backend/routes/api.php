@@ -7,31 +7,62 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\HotlineController;
 use Illuminate\Support\Facades\Route;
 
-// Test
+/*
+|--------------------------------------------------------------------------
+| TEST ROUTE
+|--------------------------------------------------------------------------
+*/
 Route::get('/test', function () {
     return response()->json([
         'message' => 'Backend is working'
     ]);
 });
 
-// Public routes
+/*
+|--------------------------------------------------------------------------
+| PUBLIC AUTH ROUTES
+|--------------------------------------------------------------------------
+*/
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
-Route::post('/guest',    [GuestSessionController::class, 'create']);
 
-// Hotline resources — public, no auth required
-// A student in crisis must always be able to access this
-Route::get('/hotlines',  [HotlineController::class, 'index']);
-
-// Guest routes
+/*
+|--------------------------------------------------------------------------
+| GUEST ROUTES
+|--------------------------------------------------------------------------
+*/
+Route::post('/guest', [GuestSessionController::class, 'create']);
 Route::post('/guest/disclaimer', [DisclaimerController::class, 'acknowledge']);
-Route::post('/guest/chat',       [ChatController::class, 'sendMessage']);
+Route::post('/guest/chat', [ChatController::class, 'sendMessage']);
 
-// Protected routes
+/*
+|--------------------------------------------------------------------------
+| PUBLIC HOTLINES
+|--------------------------------------------------------------------------
+*/
+Route::get('/hotlines', [HotlineController::class, 'index']);
+
+/*
+|--------------------------------------------------------------------------
+| ADMIN ROUTE (TEMPORARILY PUBLIC FOR DEVELOPMENT)
+|--------------------------------------------------------------------------
+*/
+Route::post('/admin/users', [AuthController::class, 'createUserByAdmin']);
+
+/*
+|--------------------------------------------------------------------------
+| PROTECTED USER ROUTES
+|--------------------------------------------------------------------------
+*/
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout',         [AuthController::class, 'logout']);
-    Route::post('/disclaimer',     [DisclaimerController::class, 'acknowledge']);
-    Route::post('/chat',           [ChatController::class, 'sendMessage']);
-    Route::get('/chat/history',    [ChatController::class, 'getHistory']);
+
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::post('/disclaimer', [DisclaimerController::class, 'acknowledge']);
+
+    Route::post('/chat', [ChatController::class, 'sendMessage']);
+
+    Route::get('/chat/history', [ChatController::class, 'getHistory']);
+
     Route::delete('/chat/history', [ChatController::class, 'deleteHistory']);
 });
