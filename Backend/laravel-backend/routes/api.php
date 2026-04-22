@@ -6,6 +6,7 @@ use App\Http\Controllers\DisclaimerController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\HotlineController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +50,9 @@ Route::get('/hotlines', [HotlineController::class, 'index']);
 |--------------------------------------------------------------------------
 */
 Route::post('/admin/users', [AuthController::class, 'createUserByAdmin']);
+Route::get('/admin/users', [UserController::class, 'index']);
+Route::post('/admin/users', [UserController::class, 'store']);
+
 
 /*
 |--------------------------------------------------------------------------

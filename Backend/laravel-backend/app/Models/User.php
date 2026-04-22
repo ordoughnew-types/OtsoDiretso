@@ -16,7 +16,7 @@ class User extends Authenticatable
     // $fillable lists which columns are allowed to be mass-assigned
     // meaning you can do User::create([...]) safely
     // Columns NOT in this list are protected from bulk assignment
-    protected $fillable = ['first_name', 'last_name', 'email', 'password', 'school_id'];
+    protected $fillable = ['first_name', 'last_name', 'email', 'password', 'school_id', 'role'];
 
     // $hidden prevents these fields from appearing in JSON responses
     // You never want to accidentally return a password in an API response

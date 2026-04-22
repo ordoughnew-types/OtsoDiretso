@@ -50,7 +50,7 @@ export default function Home() {
       if (res.ok) {
         localStorage.setItem("token", data.token);
         setErrors({});
-        router.push("/admin/createacc");
+        router.push("/admin/dashboard");
       } else {
         // 🔥 HANDLE BACKEND ERROR TYPES
         if (data.error_type === "email") {
