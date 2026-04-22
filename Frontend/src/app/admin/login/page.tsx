@@ -36,7 +36,7 @@ export default function Home() {
     }
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/login", {
+      const res = await fetch("http://127.0.0.1:8000/api/admin/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,7 +50,7 @@ export default function Home() {
       if (res.ok) {
         localStorage.setItem("token", data.token);
         setErrors({});
-        router.push("/chatbot");
+        router.push("/admin/createacc");
       } else {
         // 🔥 HANDLE BACKEND ERROR TYPES
         if (data.error_type === "email") {
@@ -75,20 +75,9 @@ export default function Home() {
       
       {/* MAIN CARD */}
       <main className="flex w-full max-w-3xl h-[600px] flex-col bg-white/20 backdrop-blur-md rounded-xl p-10">
-        
-        <h1 className="text-right text-black">
-          Continue as{" "}
-          <Link
-            href="/chatbot"
-            className="underline text-blue-600 hover:text-blue-800"
-          >
-            Guest
-          </Link>
-          !
-        </h1>
 
         <img
-          src="/tempAvatarIcon.png"
+          src="/adminSwitch.png"
           alt="Avatar"
           className="w-24 h-24 rounded-full mb-6 self-center"
         />
@@ -153,21 +142,20 @@ export default function Home() {
           >
             Log In
           </button>
-
         </div>
       </main>
 
-      {/* ADMIN BUTTON */}
-      <button
-        onClick={() => router.push("/admin/login")}
-        className="fixed bottom-4 right-4 w-12 h-12 rounded-full overflow-hidden border border-gray-400 shadow-md hover:scale-105 transition"
-      >
-        <img
-          src="/adminSwitch.png"
-          alt="Admin"
-          className="w-full h-full object-cover"
-        />
-      </button>
+      {/* BACK BUTTON */}
+          <button
+            onClick={() => router.push("/")}
+            className="fixed bottom-4 right-4 w-12 h-12 rounded-full overflow-hidden border border-gray-400 shadow-md hover:scale-105 transition"
+          >
+            <img
+              src="/chatSwitch.png"
+              alt="Back"
+              className="w-full h-full object-cover"
+            />
+          </button> 
     </div>
   );
 }

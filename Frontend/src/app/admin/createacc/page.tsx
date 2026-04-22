@@ -231,18 +231,6 @@ export default function CreateAccount() {
           </button>
         </form>
       </div>
-      
-      {/* BACK BUTTON */}
-          <button
-            onClick={() => router.push("/")}
-            className="fixed bottom-4 right-4 w-12 h-12 rounded-full overflow-hidden border border-gray-400 shadow-md hover:scale-105 transition"
-          >
-            <img
-              src="/chatSwitch.png"
-              alt="Back"
-              className="w-full h-full object-cover"
-            />
-          </button> 
     </div>
   );
 }

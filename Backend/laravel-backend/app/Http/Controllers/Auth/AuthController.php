@@ -38,41 +38,96 @@ class AuthController extends Controller
     }
 
     /**
-     * LOGIN (CLIENT OR ADMIN)
+     * CLIENT LOG-IN ONLY
      */
     public function login(Request $request)
     {
-        // VALIDATION
         $request->validate([
             'email'    => 'required|email',
             'password' => 'required',
         ]);
 
-        // CHECK IF EMAIL EXISTS
         $user = User::where('email', $request->email)->first();
 
+        // ❌ EMAIL NOT FOUND
         if (! $user) {
             return response()->json([
                 'error_type' => 'email',
-                'message' => 'User not found',
+                'message' => 'No account found with this email.'
             ], 404);
         }
 
-        // CHECK PASSWORD
+        // ❌ WRONG PASSWORD
         if (! Hash::check($request->password, $user->password)) {
             return response()->json([
                 'error_type' => 'password',
-                'message' => 'Incorrect password',
+                'message' => 'Incorrect password.'
             ], 401);
         }
 
-        // SUCCESS
+        // ❌ BLOCK ADMIN FROM CLIENT LOGIN
+        if ($user->role !== 'client') {
+            return response()->json([
+                'error_type' => 'role',
+                'message' => 'No account found with this email.'
+            ], 403);
+        }
+
+        // ✅ ALLOW CLIENT LOGIN ONLY
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'message' => 'Login successful',
             'token'   => $token,
             'user'    => $user,
+            'role'    => $user->role,
+        ]);
+    }
+
+    /**
+     * ADMIN LOG-IN ONLY
+     */
+    public function adminLogin(Request $request)
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        // ❌ EMAIL NOT FOUND
+        if (! $user) {
+            return response()->json([
+                'error_type' => 'email',
+                'message' => 'No admin account found with this email.'
+            ], 404);
+        }
+
+        // ❌ WRONG PASSWORD
+        if (! Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'error_type' => 'password',
+                'message' => 'Incorrect password.'
+            ], 401);
+        }
+
+        // ❌ ONLY ADMINS ALLOWED
+        if ($user->role !== 'admin') {
+            return response()->json([
+                'error_type' => 'role',
+                'message' => 'No admin accounts found with this email.'
+            ], 403);
+        }
+
+        // ✅ ADMIN LOGIN SUCCESS
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Admin login successful',
+            'token'   => $token,
+            'user'    => $user,
+            'role'    => $user->role,
         ]);
     }
 

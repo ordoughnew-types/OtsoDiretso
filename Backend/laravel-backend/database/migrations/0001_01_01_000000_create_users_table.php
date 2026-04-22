@@ -8,13 +8,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-       Schema::create('users', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table) {
             $table->id();
+
             $table->string('first_name');
             $table->string('last_name');
+
             $table->string('school_id')->unique();
             $table->string('email')->unique();
+
             $table->string('password');
+
+            // ✅ ROLE FIELD (client or admin)
+            $table->string('role')->default('client');
+
             $table->timestamps();
         });
 
