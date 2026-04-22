@@ -6,13 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     /**
      * CLIENT SELF REGISTRATION
-     * Used when a normal user signs up themselves.
      */
     public function register(Request $request)
     {
@@ -44,19 +42,31 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        // VALIDATION
         $request->validate([
             'email'    => 'required|email',
             'password' => 'required',
         ]);
 
+        // CHECK IF EMAIL EXISTS
         $user = User::where('email', $request->email)->first();
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Invalid credentials.'],
-            ]);
+        if (! $user) {
+            return response()->json([
+                'error_type' => 'email',
+                'message' => 'User not found',
+            ], 404);
         }
 
+        // CHECK PASSWORD
+        if (! Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'error_type' => 'password',
+                'message' => 'Incorrect password',
+            ], 401);
+        }
+
+        // SUCCESS
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -80,7 +90,6 @@ class AuthController extends Controller
 
     /**
      * ADMIN: CREATE CLIENT USER
-     * This is used in your admin panel (Next.js form).
      */
     public function createUserByAdmin(Request $request)
     {
