@@ -17,13 +17,17 @@ export default function CreateAccount() {
 
   const [errors, setErrors] = useState<any>({});
   const [serverError, setServerError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // clear field error on typing
     setErrors((prev: any) => ({ ...prev, [name]: "" }));
     setServerError("");
+    setSuccessMessage("");
   };
 
   const validate = () => {
@@ -36,7 +40,7 @@ export default function CreateAccount() {
       newErrors.last_name = "Last name is required.";
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required.";
+      newErrors.email = "School Email is required.";
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
       newErrors.email = "Invalid email format.";
     }
@@ -61,6 +65,7 @@ export default function CreateAccount() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+
     if (!validate()) return;
 
     try {
@@ -85,16 +90,34 @@ export default function CreateAccount() {
       const data = await res.json();
 
       if (res.ok) {
-        alert("User successfully created in database!");
-        router.push("/admin");
+        setSuccessMessage("User successfully created!");
+        setServerError("");
+        setErrors({});
+
+        // reset form
+        setFormData({
+          first_name: "",
+          last_name: "",
+          email: "",
+          school_id: "",
+          password: "",
+          confirm_password: "",
+        });
       } else {
         setServerError(data.message || "Failed to create user.");
+        setSuccessMessage("");
       }
     } catch (error) {
-      console.error(error);
       setServerError("Server error. Please try again later.");
+      setSuccessMessage("");
     }
   };
+
+  // reusable input style
+  const inputClass = (field: string) =>
+    `w-full px-3 py-2 rounded-lg border text-black outline-none transition ${
+      errors[field] ? "border-red-500" : "border-gray-300"
+    }`;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-chat-gradient font-sans">
@@ -102,88 +125,124 @@ export default function CreateAccount() {
       <div className="w-full max-w-md bg-white/20 backdrop-blur-md rounded-xl shadow-xl p-8">
 
         <h2 className="text-2xl font-bold text-center mb-6 text-black">
-          Create User (Admin)
+          Create Account
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
 
+          {/* SUCCESS */}
+          {successMessage && (
+            <p className="text-green-600 text-sm text-center font-medium">
+              {successMessage}
+            </p>
+          )}
+
+          {/* SERVER ERROR */}
+          {serverError && (
+            <p className="text-red-600 text-sm text-center">
+              {serverError}
+            </p>
+          )}
+
+          {/* FIRST NAME */}
           <input
             type="text"
             name="first_name"
-            placeholder="First Name"
+            placeholder="First Name (e.g. Mikaela)"
             value={formData.first_name}
             onChange={handleChange}
-            className="w-full px-3 py-2 rounded-lg border text-black"
+            className={inputClass("first_name")}
           />
-          {errors.first_name && <p className="text-red-500 text-sm">{errors.first_name}</p>}
+          {errors.first_name && (
+            <p className="text-red-500 text-sm">{errors.first_name}</p>
+          )}
 
+          {/* LAST NAME */}
           <input
             type="text"
             name="last_name"
-            placeholder="Last Name"
+            placeholder="Last Name (e.g. Guiao)"
             value={formData.last_name}
             onChange={handleChange}
-            className="w-full px-3 py-2 rounded-lg border text-black"
+            className={inputClass("last_name")}
           />
-          {errors.last_name && <p className="text-red-500 text-sm">{errors.last_name}</p>}
+          {errors.last_name && (
+            <p className="text-red-500 text-sm">{errors.last_name}</p>
+          )}
 
+          {/* EMAIL */}
           <input
             type="email"
             name="email"
-            placeholder="Email (login credential)"
+            placeholder="School Email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-3 py-2 rounded-lg border text-black"
+            className={inputClass("email")}
           />
-          {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email}</p>
+          )}
 
+          {/* SCHOOL ID */}
           <input
             type="text"
             name="school_id"
-            placeholder="School ID (e.g. 2232690)"
+            placeholder="School ID"
             value={formData.school_id}
             onChange={handleChange}
-            className="w-full px-3 py-2 rounded-lg border text-black"
+            className={inputClass("school_id")}
           />
           {errors.school_id && (
             <p className="text-red-500 text-sm">{errors.school_id}</p>
           )}
 
+          {/* PASSWORD */}
           <input
             type="password"
             name="password"
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full px-3 py-2 rounded-lg border text-black"
+            className={inputClass("password")}
           />
-          {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password}</p>
+          )}
 
+          {/* CONFIRM PASSWORD */}
           <input
             type="password"
             name="confirm_password"
-            placeholder="Retype Password"
+            placeholder="Re-type Password"
             value={formData.confirm_password}
             onChange={handleChange}
-            className="w-full px-3 py-2 rounded-lg border text-black"
+            className={inputClass("confirm_password")}
           />
           {errors.confirm_password && (
             <p className="text-red-500 text-sm">{errors.confirm_password}</p>
           )}
 
-          {serverError && (
-            <p className="text-red-600 text-sm text-center">{serverError}</p>
-          )}
-
+          {/* SUBMIT */}
           <button
             type="submit"
             className="w-full h-12 rounded-full border border-black text-black hover:bg-white/30 transition"
           >
-            Save to Users Table
+            Create
           </button>
-
         </form>
       </div>
+      
+      {/* BACK BUTTON */}
+          <button
+            onClick={() => router.push("/")}
+            className="fixed bottom-4 right-4 w-12 h-12 rounded-full overflow-hidden border border-gray-400 shadow-md hover:scale-105 transition"
+          >
+            <img
+              src="/chatSwitch.png"
+              alt="Back"
+              className="w-full h-full object-cover"
+            />
+          </button> 
     </div>
   );
 }
