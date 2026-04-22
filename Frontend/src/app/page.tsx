@@ -11,60 +11,61 @@ export default function Home() {
   const router = useRouter();
 
   const handleLogin = async () => {
-  if (!email || !password) {
-    setError("Email and password are required!");
-    return;
-  }
-
-  try {
-    const res = await fetch("http://127.0.0.1:8000/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      localStorage.setItem("token", data.token);
-      setError("");
-      router.push("/chatbot");
-    } else {
-      setError(data.message || "Login failed");
+    if (!email || !password) {
+      setError("Email and password are required!");
+      return;
     }
-  } catch (err) {
-    setError("Cannot connect to server");
-  }
-};
 
-  /**
-   * TODO:
-   * Add background effect (Parallax)
-   * Polish
-   */
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem("token", data.token);
+        setError("");
+        router.push("/chatbot");
+      } else {
+        setError(data.message || "Login failed");
+      }
+    } catch (err) {
+      setError("Cannot connect to server");
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans bg-chat-gradient">
+
+      {/* MAIN CARD */}
       <main className="flex w-full max-w-3xl h-[600px] flex-col bg-white/20 backdrop-blur-md rounded-xl p-10">
+        
         <h1 className="text-right text-black">
-        Continue as{' '}
-        <Link href="/chatbot" className="underline text-blue-600 hover:text-blue-800">
-          Guest
-        </Link>
-        !
-      </h1>
-        <img 
-          src="/tempAvatarIcon.png" 
-          alt="Avatar" 
-          className="w-24 h-24 rounded-full mb-6 self-center" 
+          Continue as{" "}
+          <Link href="/chatbot" className="underline text-blue-600 hover:text-blue-800">
+            Guest
+          </Link>
+          !
+        </h1>
+
+        <img
+          src="/tempAvatarIcon.png"
+          alt="Avatar"
+          className="w-24 h-24 rounded-full mb-6 self-center"
         />
 
         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left w-full gap-3">
+          
           <label className="text-3xl font-montserrat leading-10 tracking-tight text-black dark:text-zinc-50 pl-9">
             Email
           </label>
+
           <input
             type="email"
             placeholder="🖂"
@@ -93,8 +94,22 @@ export default function Home() {
           >
             Log In
           </button>
+
         </div>
       </main>
+
+      {/* 🔐 ADMIN ICON BUTTON (BOTTOM LEFT) */}
+      <button
+        onClick={() => router.push("/admin")}
+        className="fixed bottom-4 right-4 w-12 h-12 rounded-full overflow-hidden border border-gray-400 shadow-md hover:scale-105 transition"
+      >
+        <img
+          src="/adminIcon.png"
+          alt="Admin"
+          className="w-full h-full object-cover"
+        />
+      </button>
+
     </div>
   );
 }
