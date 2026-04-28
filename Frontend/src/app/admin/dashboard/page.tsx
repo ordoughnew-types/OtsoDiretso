@@ -7,6 +7,10 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState("");
 
   const [showModal, setShowModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+
+  const [showFilter, setShowFilter] = useState(false);
+  const [filterRole, setFilterRole] = useState("all");
 
   const [formData, setFormData] = useState({
     first_name: "",
@@ -19,18 +23,13 @@ export default function AdminDashboard() {
 
   const [errors, setErrors] = useState<any>({});
   const [serverError, setServerError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
-  // =========================
-  // FETCH USERS
-  // =========================
+  // ================= FETCH USERS =================
   const fetchUsers = async () => {
     try {
       const res = await fetch("http://127.0.0.1:8000/api/admin/users", {
         method: "GET",
-        headers: {
-          Accept: "application/json",
-        },
+        headers: { Accept: "application/json" },
       });
 
       const data = await res.json();
@@ -47,58 +46,42 @@ export default function AdminDashboard() {
     fetchUsers();
   }, []);
 
-  // =========================
-  // SEARCH
-  // =========================
-  const filteredUsers = users.filter((u) =>
-    `${u.first_name} ${u.last_name} ${u.email}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  // ================= FILTER + SEARCH =================
+  const filteredUsers = users
+    .filter((u) => (filterRole === "all" ? true : u.role === filterRole))
+    .filter((u) =>
+      `${u.first_name} ${u.last_name} ${u.email}`
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    );
 
-  // =========================
-  // OPEN MODAL
-  // =========================
-  const openModal = () => {
-    setShowModal(true);
-    setSuccessMessage(""); // ✅ clear old success message
-  };
-
-  // =========================
-  // HANDLE INPUT
-  // =========================
+  // ================= INPUT =================
   const handleChange = (e: any) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev: any) => ({ ...prev, [name]: "" }));
     setServerError("");
-    setSuccessMessage(""); // ✅ clear while typing
   };
 
-  // =========================
-  // VALIDATE
-  // =========================
+  // ================= VALIDATE =================
   const validate = () => {
     const newErrors: any = {};
 
-    if (!formData.first_name) newErrors.first_name = true;
-    if (!formData.last_name) newErrors.last_name = true;
-    if (!formData.email) newErrors.email = true;
-    if (!formData.school_id) newErrors.school_id = true;
-    if (!formData.password) newErrors.password = true;
+    if (!formData.first_name) newErrors.first_name = "Required";
+    if (!formData.last_name) newErrors.last_name = "Required";
+    if (!formData.email) newErrors.email = "Required";
+    if (!formData.school_id) newErrors.school_id = "Required";
+    if (!formData.password) newErrors.password = "Required";
 
-    if (formData.password !== formData.confirm_password) {
-      newErrors.confirm_password = true;
-    }
+    if (formData.password !== formData.confirm_password)
+      newErrors.confirm_password = "Passwords do not match";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // =========================
-  // SUBMIT
-  // =========================
+  // ================= CREATE =================
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
@@ -114,16 +97,7 @@ export default function AdminDashboard() {
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
-
       if (res.ok) {
-        setSuccessMessage("User created successfully!");
-
-        // auto remove success message
-        setTimeout(() => {
-          setSuccessMessage("");
-        }, 2000);
-
         setFormData({
           first_name: "",
           last_name: "",
@@ -136,7 +110,8 @@ export default function AdminDashboard() {
         fetchUsers();
         setShowModal(false);
       } else {
-        setServerError(data.message || "Failed to create user");
+        const data = await res.json();
+        setServerError(data.message || "Error creating user");
       }
     } catch {
       setServerError("Server error");
@@ -146,167 +121,173 @@ export default function AdminDashboard() {
   return (
     <div className="relative min-h-screen bg-chat-gradient p-6">
 
+      {/* HEADER */}
+      <div className="bg-white/30 backdrop-blur-md rounded-xl p-4 mb-6 text-center text-2xl font-bold">
+        Admin Dashboard
+      </div>
+
       {/* TOP BAR */}
       <div className="flex justify-between items-center mb-4">
-        <input
-          type="text"
-          placeholder="Search users..."
-          className="w-1/2 p-2 rounded-lg border text-black"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+
+        {/* SEARCH + FILTER */}
+        <div className="flex items-center gap-2 w-1/2 relative">
+
+          <div className="relative w-full">
+            <span className="absolute left-3 top-2.5">🔍</span>
+            <input
+              type="text"
+              placeholder="Search users..."
+              className="w-full pl-10 p-2 border rounded"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          <div className="relative">
+            <button
+              onClick={() => setShowFilter((prev) => !prev)}
+              className="bg-gray-700 text-white px-4 py-2 rounded"
+            >
+              Filter
+            </button>
+
+            {showFilter && (
+              <div className="absolute bg-white shadow rounded mt-2 w-40">
+                {["all", "client", "admin"].map((role) => (
+                  <button
+                    key={role}
+                    className="block w-full px-4 py-2 hover:bg-gray-100"
+                    onClick={() => {
+                      setFilterRole(role);
+                      setShowFilter(false);
+                    }}
+                  >
+                    {role}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
 
         <button
-          onClick={openModal}
-          className="bg-black text-white px-4 py-2 rounded-lg"
+          onClick={() => setShowModal(true)}
+          className="bg-black text-white px-4 py-2 rounded"
         >
           Create
         </button>
       </div>
 
-      {/* USERS LIST */}
-      <div className="bg-white/20 backdrop-blur-md rounded-lg p-4 min-h-[400px]">
+      {/* USERS */}
+      <div className="bg-white/20 rounded p-4 min-h-[400px]">
         {filteredUsers.length === 0 ? (
-          <div className="flex items-center justify-center h-[400px]">
+          <div className="flex justify-center items-center h-[400px]">
             No accounts available yet.
           </div>
         ) : (
           <div className="space-y-2 max-h-[400px] overflow-y-auto">
-            {filteredUsers.map((user, index) => (
+            {filteredUsers.map((user, i) => (
               <div
-                key={index}
-                className="p-3 bg-white rounded-lg shadow"
+                key={i}
+                onClick={() => setSelectedUser(user)}
+                className="p-3 bg-white rounded shadow cursor-pointer flex justify-between items-center"
               >
-                {user.first_name} {user.last_name} - {user.email}
+                <div>
+                  {user.first_name} {user.last_name} - {user.email}
+                </div>
+
+                {/* ROLE ICON */}
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-white ${
+                    user.role === "admin"
+                      ? "bg-yellow-500"
+                      : "bg-blue-500"
+                  }`}
+                >
+                  {user.role === "admin" ? "★" : "🎓"}
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* MODAL */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+      {/* USER DETAILS POPUP */}
+      {selectedUser && (
+        <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
 
-          <div className="bg-white p-12 rounded-xl w-full max-w-3xl">
+          <div className="bg-white p-8 rounded-xl w-full max-w-lg relative">
 
-            <h2 className="text-2xl font-bold mb-6">
-              Create Account
-            </h2>
+            <button
+              onClick={() => setSelectedUser(null)}
+              className="absolute top-2 right-3"
+            >
+              ✕
+            </button>
 
-            {successMessage && (
-              <p className="text-green-600 text-sm mb-3">
-                {successMessage}
-              </p>
-            )}
+            <h2 className="text-xl font-bold mb-4">User Details</h2>
 
-            {serverError && (
-              <p className="text-red-500 text-sm mb-3">
-                {serverError}
-              </p>
-            )}
+            <p><b>Name:</b> {selectedUser.first_name} {selectedUser.last_name}</p>
+            <p><b>Email:</b> {selectedUser.email}</p>
+            <p><b>School ID:</b> {selectedUser.school_id}</p>
+            <p><b>Role:</b> {selectedUser.role}</p>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-
-              <input
-                name="first_name"
-                placeholder="First Name"
-                value={formData.first_name}
-                onChange={handleChange}
-                className={`w-full p-3 border rounded ${
-                  errors.first_name ? "border-red-500" : ""
-                }`}
-              />
-
-              <input
-                name="last_name"
-                placeholder="Last Name"
-                value={formData.last_name}
-                onChange={handleChange}
-                className={`w-full p-3 border rounded ${
-                  errors.last_name ? "border-red-500" : ""
-                }`}
-              />
-
-              <input
-                name="email"
-                placeholder="Email"
-                value={formData.email}
-                onChange={handleChange}
-                className={`w-full p-3 border rounded ${
-                  errors.email ? "border-red-500" : ""
-                }`}
-              />
-
-              <input
-                name="school_id"
-                placeholder="School ID"
-                value={formData.school_id}
-                onChange={handleChange}
-                className={`w-full p-3 border rounded ${
-                  errors.school_id ? "border-red-500" : ""
-                }`}
-              />
-
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleChange}
-                className={`w-full p-3 border rounded ${
-                  errors.password ? "border-red-500" : ""
-                }`}
-              />
-
-              <input
-                type="password"
-                name="confirm_password"
-                placeholder="Confirm Password"
-                value={formData.confirm_password}
-                onChange={handleChange}
-                className={`w-full p-3 border rounded ${
-                  errors.confirm_password ? "border-red-500" : ""
-                }`}
-              />
-
-              <div className="flex justify-between pt-4">
-
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-5 py-2 bg-gray-300 rounded"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-black text-white rounded"
-                >
-                  Create
-                </button>
-
-              </div>
-
-            </form>
+            {/* PASSWORD (MASKED) */}
+            <p><b>Password:</b> ••••••••</p>
 
           </div>
-
         </div>
       )}
 
-      {/* LOG OUT BUTTON */}
+      {/* CREATE MODAL */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/60 flex justify-center items-center">
+
+          <div className="bg-white p-12 rounded-xl w-full max-w-4xl">
+
+            <h2 className="text-2xl mb-6">Create Account</h2>
+
+            {serverError && <p className="text-red-500">{serverError}</p>}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+
+              {Object.keys(formData).map((field) => (
+                <input
+                  key={field}
+                  name={field}
+                  type={field.includes("password") ? "password" : "text"}
+                  placeholder={field}
+                  value={(formData as any)[field]}
+                  onChange={handleChange}
+                  className="w-full p-3 border rounded"
+                />
+              ))}
+
+              <div className="flex justify-between">
+                <button type="button" onClick={() => setShowModal(false)}>
+                  Cancel
+                </button>
+
+                <button type="submit" className="bg-black text-white px-4 py-2">
+                  Create
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* LOGOUT */}
       <button
         onClick={() => {
           localStorage.removeItem("admin_token");
-          window.location.href = "/"; // change if your login route is different
+          window.location.href = "/";
         }}
-        className="fixed bottom-6 right-6 bg-red-600 text-white px-5 py-2 rounded-full shadow-lg hover:bg-red-700 transition"
+        className="fixed bottom-6 right-6 bg-red-600 text-white px-5 py-2 rounded-full"
       >
         Log Out
       </button>
-
     </div>
   );
 }
