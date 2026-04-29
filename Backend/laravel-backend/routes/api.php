@@ -27,6 +27,8 @@ Route::get('/test', function () {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
 Route::post('/admin/login', [AuthController::class, 'adminLogin']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +52,7 @@ Route::get('/hotlines', [HotlineController::class, 'index']);
 |--------------------------------------------------------------------------
 */
 Route::post('/admin/users', [AuthController::class, 'createUserByAdmin']);
+Route::delete('/admin/users/{id}', [UserController::class, 'deleteUser']);
 Route::get('/admin/users', [UserController::class, 'index']);
 Route::post('/admin/users', [UserController::class, 'store']);
 

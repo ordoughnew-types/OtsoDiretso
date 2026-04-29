@@ -70,6 +70,44 @@ export default function Home() {
     }
   };
 
+  // FORGOT PASSWORD
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotMessage, setForgotMessage] = useState("");
+  const [forgotError, setForgotError] = useState("");
+
+  const handleForgotPassword = async () => {
+    setForgotMessage("");
+    setForgotError("");
+
+    if (!forgotEmail) {
+      setForgotError("Email is required");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ email: forgotEmail }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setForgotMessage("Password reset link sent to your email.");
+        setForgotEmail("");
+      } else {
+        setForgotError(data.message || "Email not found");
+      }
+    } catch {
+      setForgotError("Server error");
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans bg-chat-gradient">
       
@@ -142,6 +180,13 @@ export default function Home() {
           >
             Log In
           </button>
+
+          <button
+            onClick={() => setShowForgot(true)}
+            className="text-sm text-blue-600 mt-2 hover:underline"
+          >
+            Forgot Password?
+          </button>
         </div>
       </main>
 
@@ -156,6 +201,59 @@ export default function Home() {
               className="w-full h-full object-cover"
             />
           </button> 
+
+          {showForgot && (
+            <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+
+              <div className="bg-white p-6 rounded-xl w-full max-w-md">
+
+                <h2 className="text-xl font-bold mb-4">
+                  Forgot Password
+                </h2>
+
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  className="w-full p-3 border rounded mb-3"
+                />
+
+                {forgotError && (
+                  <p className="text-red-500 text-sm mb-2">{forgotError}</p>
+                )}
+
+                {forgotMessage && (
+                  <p className="text-green-600 text-sm mb-2">{forgotMessage}</p>
+                )}
+
+                <div className="flex justify-between">
+
+                  <button
+                    onClick={() => {
+                      setShowForgot(false);
+                      setForgotEmail("");
+                      setForgotError("");
+                      setForgotMessage("");
+                    }}
+                    className="px-4 py-2 bg-gray-300 rounded"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    onClick={handleForgotPassword}
+                    className="px-4 py-2 bg-black text-white rounded"
+                  >
+                    Send Link
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+          )}
     </div>
   );
 }
