@@ -9,9 +9,16 @@ export default function ChatbotPage() {
 
   const [acceptedDisclaimer, setAcceptedDisclaimer] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const [hotlinesOpen, setHotlinesOpen] = useState(false);
 
-  const [messages, setMessages] = useState([
-    { text: "Hi User! How can I help?", sender: "bot" as const },
+  type Message = {
+    text: string;
+    sender: "user" | "bot";
+  };
+
+  const [messages, setMessages] = useState<Message[]>([
+    { text: "Hi User! How can I help?", sender: "bot" },
   ]);
 
   const [input, setInput] = useState("");
@@ -69,14 +76,15 @@ export default function ChatbotPage() {
             <h2 className="text-lg font-bold mb-2">Menu</h2>
 
             <button
-              onClick={() => router.push("/hotlines")}
+              onClick={() => setHotlinesOpen(true)}
               className="text-left hover:underline"
             >
               Emergency Hotlines
             </button>
 
+            {/* ABOUT US MODAL TRIGGER */}
             <button
-              onClick={() => router.push("/about")}
+              onClick={() => setAboutOpen(true)}
               className="text-left hover:underline"
             >
               About Us
@@ -89,7 +97,6 @@ export default function ChatbotPage() {
               Chat History
             </button>
 
-            {/* LOG OUT (INSIDE DASHBOARD) */}
             <button
               onClick={() => {
                 localStorage.removeItem("token");
@@ -107,9 +114,8 @@ export default function ChatbotPage() {
       {/* MAIN AREA */}
       <div className="flex flex-col flex-1 transition-all duration-300">
 
-        {/* TOP BAR (BUTTON MOVES WITH LAYOUT) */}
+        {/* TOP BAR */}
         <div className="flex items-center p-4">
-
           {acceptedDisclaimer && (
             <button
               onClick={() => setMenuOpen(!menuOpen)}
@@ -118,17 +124,16 @@ export default function ChatbotPage() {
               ☰
             </button>
           )}
-
         </div>
 
-        {/* DISCLAIMER (UNCHANGED) */}
+        {/* DISCLAIMER */}
         {!acceptedDisclaimer && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
             <div className="w-full max-w-md rounded-2xl border border-gray-300 bg-white p-6 shadow-2xl">
               <h2 className="text-xl font-bold text-black">Disclaimer</h2>
 
               <p className="mt-3 text-sm leading-6 text-gray-800">
-              This chatbot is intended to provide comfort, emotional support, and general
+                This chatbot is intended to provide comfort, emotional support, and general
                 encouragement for students. It is not a replacement for a licensed therapist,
                 counselor, psychologist, psychiatrist, or any other mental health professional.
                 It does not provide diagnosis, treatment, crisis intervention, or medical advice.
@@ -185,6 +190,149 @@ export default function ChatbotPage() {
         </div>
 
       </div>
+
+      {/* ABOUT US MODAL */}
+      {aboutOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+          
+          <div className="w-full max-w-5xl rounded-2xl bg-white p-8 shadow-xl relative overflow-y-auto max-h-[90vh]">
+
+            {/* HEADER */}
+            <h2 className="text-3xl font-bold mb-3">About This Chatbot</h2>
+
+            <p className="text-sm text-gray-700 leading-6 mb-6">
+              This AI chatbot was developed as part of a research project aimed at providing
+              emotional support and conversational assistance to students. It is designed to
+              offer a safe space for users to express their thoughts and receive supportive responses.
+              <br /><br />
+              <b>Purpose:</b><br />
+              - Provide emotional support<br />
+              - Encourage self-reflection<br />
+              - Assist students in managing stress and concerns<br /><br />
+
+              <b>Note:</b> This system is not a replacement for professional mental health care.
+            </p>
+
+            {/* TEAM SECTION */}
+            <h3 className="text-xl font-semibold mb-4">Developers / Team Members</h3>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+
+              {/* Member 1 */}
+              <div className="flex flex-col items-center">
+                <img src="/members\AuBumanglag.png" className="w-24 h-24 rounded-full object-cover bg-gray-200" />
+                <p className="mt-2 text-sm">Au Bumanglag</p>
+              </div>
+
+              {/* Member 2 */}
+              <div className="flex flex-col items-center">
+                <img src="/members/TomieDeLeon.png" className="w-24 h-24 rounded-full object-cover bg-gray-200" />
+                <p className="mt-2 text-sm">Tomie De Leon</p>
+              </div>
+
+              {/* Member 3 */}
+              <div className="flex flex-col items-center">
+                <img src="/members/member3.png" className="w-24 h-24 rounded-full object-cover bg-gray-200" />
+                <p className="mt-2 text-sm">Ramil Grabador</p>
+              </div>
+
+              {/* Member 4 */}
+              <div className="flex flex-col items-center">
+                <img src="/members/member4.png" className="w-24 h-24 rounded-full object-cover bg-gray-200" />
+                <p className="mt-2 text-sm">Julianne Mikaela Guiao</p>
+              </div>
+
+              {/* Member 5 */}
+              <div className="flex flex-col items-center">
+                <img src="/members/member5.png" className="w-24 h-24 rounded-full object-cover bg-gray-200" />
+                <p className="mt-2 text-sm">Adrian James Ordonio</p>
+              </div>
+
+              {/* Member 6 */}
+              <div className="flex flex-col items-center">
+                <img src="/members/member6.png" className="w-24 h-24 rounded-full object-cover bg-gray-200" />
+                <p className="mt-2 text-sm">Abigail Palacay</p>
+              </div>
+
+              {/* Member 7 */}
+              <div className="flex flex-col items-center">
+                <img src="/members/member7.png" className="w-24 h-24 rounded-full object-cover bg-gray-200" />
+                <p className="mt-2 text-sm">Jermaine Bryan Pascual</p>
+              </div>
+
+              {/* Member 8 */}
+              <div className="flex flex-col items-center">
+                <img src="/members/member8.png" className="w-24 h-24 rounded-full object-cover bg-gray-200" />
+                <p className="mt-2 text-sm">John Michael Sollorin</p>
+              </div>
+            </div>
+
+            {/* CLOSE BUTTON */}
+            <button
+              onClick={() => setAboutOpen(false)}
+              className="mt-8 w-full rounded-lg bg-blue-600 px-4 py-3 text-white"
+            >
+              Close
+            </button>
+
+          </div>
+        </div>
+      )}
+
+      {/* EMERGENCY HOTLINES MODAL */}
+      {hotlinesOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+
+          <div className="w-full max-w-3xl rounded-2xl bg-white p-8 shadow-xl relative max-h-[90vh] overflow-y-auto">
+
+            <h2 className="text-2xl font-bold mb-4">Emergency Hotlines</h2>
+
+            <p className="text-sm text-gray-600 mb-6">
+              If you are in immediate danger or experiencing a mental health crisis,
+              please contact the appropriate hotline below.
+            </p>
+
+            {/* HOTLINES LIST */}
+            <div className="space-y-4 text-sm">
+
+              <div className="p-4 border rounded-lg">
+                <p className="font-semibold">National Mental Health Crisis Hotline (PH)</p>
+                <p>📞 1553</p>
+                <p className="text-gray-600">Available 24/7 for mental health emergencies</p>
+              </div>
+
+              <div className="p-4 border rounded-lg">
+                <p className="font-semibold">NCMH Crisis Hotline (Mobile)</p>
+                <p>📞 0966-351-4518</p>
+                <p className="text-gray-600">📞 0917-899-8727</p>
+              </div>
+
+              <div className="p-4 border rounded-lg">
+                <p className="font-semibold">Emergency Services (Philippines)</p>
+                <p>📞 911</p>
+                <p className="text-gray-600">For immediate life-threatening emergencies</p>
+              </div>
+
+              <div className="p-4 border rounded-lg">
+                <p className="font-semibold">SLU Guidance Office (Sample)</p>
+                <p>📞 (Insert school hotline here)</p>
+                <p className="text-gray-600">For student counseling and support</p>
+              </div>
+
+            </div>
+
+            {/* CLOSE BUTTON */}
+            <button
+              onClick={() => setHotlinesOpen(false)}
+              className="mt-6 w-full rounded-lg bg-red-600 px-4 py-3 text-white"
+            >
+              Close
+            </button>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
